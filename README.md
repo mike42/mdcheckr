@@ -2,7 +2,7 @@
 
 Practical CI testing for markdown files.
 
-## Installation
+## Dependencies
 
 Requirements:
 
@@ -10,18 +10,27 @@ Requirements:
 - xmllint
 - pandoc
 
+## Installation
+
 ```bash
-git clone https://github.com/mike42/mdcheckr
-cp mdcheckr/mdcheckr /usr/local/bin
+curl https://raw.githubusercontent.com/mike42/mdcheckr/master/mdcheckr -o mdcheckr
+chmod +x mdcheckr
+sudo cp mdcheckr /usr/local/bin
 ```
 
 ## Usage
 
-Check a single markdown file
+Check a single markdown file:
+
+```
+mdcheckr README.md
+```
 
 Check all the markdown files in the current directory:
 
+```
 find . -name '*.md' -print0 | xargs -0 mdcheckr
+```
 
 Check all the markdown files in your Git repository:
 
