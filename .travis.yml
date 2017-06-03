@@ -1,3 +1,4 @@
 - script:
   - bash -n mdcheckr
+  - (cd tests && ./test.sh)
   - ./mdcheckr README.md
