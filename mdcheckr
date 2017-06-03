@@ -1,0 +1,49 @@
+#!/bin/bash
+set -e
+
+# Extract URLs from Markdown file via Pandoc
+function extract_links() {
+  pandoc -f markdown_github "$fn" | (xmllint --nowarning --html --xpath '*//a/@href' - 2> /dev/null || true) | sed 's/ href="\([^"]*\)"/\1\n/g'
+}
+
+function green() {
+  echo -e "\033[32m[ \e[1m$1\e[21m ]\e[0m"
+}
+
+function red() {
+  echo -e "\033[31m[ \e[1m$1\e[21m ]\e[0m"
+}
+
+function explain {
+  >&2 echo -e Warning:$1:$2
+}
+
+DIR=`pwd`
+
+for i in $@; do
+  cd "$DIR"
+  fn=$(basename "$i")
+  # Jump into same dir as file
+  cd `dirname "$i"`
+  echo "Checking $i .."
+  extract_links "$fn" | while read -r line; do
+    # Notify of check
+    echo -n "- $line ";
+    fail=0
+    # Do check
+    if [ ! -f "$line" ]; then
+      if ! curl --silent --head --location --fail "$line" > /dev/null; then
+        fail=1
+        REASON="Broken link to '$line'"
+      fi
+    fi
+    # Result
+    if [ "$fail" == 1 ]; then
+      red "FAIL"
+      explain "$i" "$REASON"
+    else
+      green "OK"
+    fi
+  done;
+done
+cd $DIR
