@@ -1,0 +1,3 @@
+- script:
+  - bash -n mdcheckr
+  - ./mdcheckr README.md
