@@ -1,4 +1,4 @@
-# mdcheckr
+# mdcheckr [![Build Status](https://travis-ci.org/mike42/mdcheckr.svg?branch=master)](https://travis-ci.org/mike42/mdcheckr)
 
 Practical CI testing for markdown files.
 
