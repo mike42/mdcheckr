@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 # mdcheckr: practical CI testing for markdown files
 # Copyright (c) 2017 Michael Billington < michael.billingotn@gmail.com >
 #
@@ -20,6 +19,7 @@ set -e
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+set -e
 
 function extract_links() {
   # Extract URLs from Markdown file:
@@ -43,7 +43,15 @@ function explain {
   >&2 echo -e Warning:$1:$2
 }
 
+# Explicitly check for each dependency
+for i in which pandoc xmllint curl; do which $i > /dev/null 2> /dev/null || (
+    echo "The tool '$i' is required by mdcheckr, but is not in your \$PATH."
+    exit 127
+  );
+done
+
 DIR=`pwd`
+failures=0
 
 for i in $@; do
   cd "$DIR"

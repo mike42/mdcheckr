@@ -1,4 +1,12 @@
 ---
+dist: trusty
+sudo: false
+
+addons:
+  apt:
+    packages:
+    - pandoc
+
 script:
   - bash -n mdcheckr
   - (cd tests && ./test.sh)
