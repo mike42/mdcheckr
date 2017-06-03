@@ -1,4 +1,4 @@
-# Good link
+# Good relative path link
 
 This is an example of a URL to a local file which exists:
 

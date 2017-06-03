@@ -1,4 +1,4 @@
-# Good link
+# Bad absolute path link
 
 This is an example of a URL to a remote file which does not exist:
 

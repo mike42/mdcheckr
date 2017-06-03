@@ -5,7 +5,8 @@ sudo: false
 addons:
   apt:
     packages:
-    - pandoc
+      - pandoc
+      - libxml2-utils
 
 script:
   - bash -n mdcheckr
