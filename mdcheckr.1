@@ -1,0 +1,48 @@
+.TH MDCHECKR 1
+.SH NAME
+mdcheckr \- check markdown files for broken links and other errors.
+.SH SYNOPSIS
+.B mdcheckr
+.IR file ...
+.SH DESCRIPTION
+.B mdcheckr
+checks for broken internal and external links, as well as syntax issues with
+code blocks in scanned files.
+
+.SH EXAMPLES
+To check a single markdown file:
+
+.PP
+.nf
+.RS
+mdcheckr README.md
+.RE
+.fi
+.PP
+
+To check all the markdown files in the current directory, use the
+.BR find (1)
+and
+.BR xargs (1)
+commands:
+
+.PP
+.nf
+.RS
+find . -name '*.md' -print0 | xargs -0 mdcheckr
+.RE
+.fi
+.PP
+
+To check all the markdown files in the current git repository, use the
+.BR git (1)
+command:
+
+.PP
+.nf
+.RS
+git ls-files | grep '\.md$' | tr '\n' '\0' | xargs -0 mdcheckr
+.RE
+.fi
+.PP
+
