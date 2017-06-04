@@ -11,7 +11,7 @@ test:
 source-tarball: mdcheckr_$(VERSION).orig.tar.gz
 
 mdcheckr_$(VERSION).orig.tar.gz:
-	tar --transform "s/^/mdcheckr-$(VERSION)\//" -cvzf \
+	tar --transform "s,^,mdcheckr-$(VERSION)/," -cvzf \
 		mdcheckr_$(VERSION).orig.tar.gz \
 		LICENSE.md \
 		README.md \
