@@ -7,6 +7,9 @@ addons:
     packages:
       - pandoc
       - libxml2-utils
+      - devscripts
+      - build-essential
+      - lintian
 
 script:
   - make test
