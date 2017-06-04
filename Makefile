@@ -21,7 +21,7 @@ mdcheckr_$(VERSION).orig.tar.gz:
 unsigned-package: mdcheckr_$(VERSION)-1_all.deb
 
 mdcheckr_$(VERSION)-1_all.deb: mdcheckr_$(VERSION).orig.tar.gz
-	tar -xzf mdcheckr_$(VERSION).orig.tar.gz
+	tar -xvzf mdcheckr_$(VERSION).orig.tar.gz
 	cp -Rf debian/ mdcheckr-$(VERSION)/
 	(cd mdcheckr-$(VERSION)/ && debuild -us -uc)
 	rm -Rf mdcheckr-$(VERSION)/
