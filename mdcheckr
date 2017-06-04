@@ -244,7 +244,6 @@ for i in $@; do
   # Jump into same dir as file (for checking relative paths to work)
   cd `dirname -- "$i"`
   # Check that file will render to contain valid links, images
-  # TODO TODO TODO TODO
   html_fn=$(render_markdown_to_html "$fn")
   check_links "$i" < <(extract_links_from_html "$html_fn")
   check_image_links "$i"  < <(extract_image_links_from_html "$html_fn")
