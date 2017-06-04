@@ -28,7 +28,7 @@ set -o nounset
 function render_markdown_to_html() {
   # Render markdown to temp file via Pandoc for further processing
   local _outp_file=$(tempfile)
-  pandoc -f markdown_github "$1" > "$_outp_file"
+  pandoc -f markdown_github -- "$1" > "$_outp_file"
   echo "$_outp_file"
 }
 
@@ -90,7 +90,7 @@ function check_link() {
   if [ -f "$_inp_filename" ]; then
     return 0
   fi
-  if curl --silent --head --location --fail "$_inp_filename" > /dev/null; then
+  if curl --silent --head --location --fail -- "$_inp_filename" > /dev/null; then
     return 0
   fi
   return 1
@@ -176,8 +176,8 @@ function check_code_block() {
       >&2 cat "$_code_block_tmp_file"
     fi
   fi
-  rm -f "$_test_outp_file"
-  rm -f "$_code_block_tmp_file"
+  rm -f -- "$_test_outp_file"
+  rm -f -- "$_code_block_tmp_file"
 }
 
 function check_code_block_bash() {
@@ -192,7 +192,7 @@ function check_code_block_bash_dependencies() {
 function check_code_block_php() {
   local _test_file="$1"
   # Prepend the file with "<?php" if it's not in there
-  grep '<?php' "$_test_file" || sed -i '1s/^/<?php\n/' "$_test_file" 2> /dev/null
+  grep '<?php' "$_test_file" || sed -i '1s/^/<?php\n/' -- "$_test_file" 2> /dev/null
   # Run the test
   php --syntax-check "$_test_file"
 }
@@ -236,19 +236,19 @@ FAILURE_COUNT=0
 VERBOSITY=3
 
 for i in $@; do
-  cd "$DIR"
-  fn=$(basename "$i")
+  cd -- "$DIR"
+  fn=$(basename -- "$i")
   echo "Checking $i .."
   # Check that markdown code blocks have good syntax
   check_code_blocks "$i"
   # Jump into same dir as file (for checking relative paths to work)
-  cd `dirname "$i"`
+  cd `dirname -- "$i"`
   # Check that file will render to contain valid links, images
   # TODO TODO TODO TODO
   html_fn=$(render_markdown_to_html "$fn")
   check_links "$i" < <(extract_links_from_html "$html_fn")
   check_image_links "$i"  < <(extract_image_links_from_html "$html_fn")
-  rm -f "$html_fn"
+  rm -f -- "$html_fn"
 done
 
 # Return to initial directory
