@@ -96,6 +96,111 @@ function check_link() {
   return 1
 }
 
+function check_code_blocks() {
+  # Extract code blocks from markdown file, and check each one
+  local _input_markdown_file="$1";
+  local _line_number="0"
+  local _is_code="0"
+  local _code_block_start_line="0"
+  local _code_block_language=""
+  local _code_block_file=""
+  while read -r _line; do
+    _line_number=$((_line_number+1))
+    if [[ "$_line" =~ ^\`\`\`.* ]]; then
+      # Found a line with three backticks
+      if [[ "$_is_code" == "1" ]]; then
+        _is_code="0"
+        check_code_block "$_input_markdown_file" "$_code_block_start_line" "$_code_block_file" "$_code_block_language"
+      else
+        _code_block_language=$(echo "$_line" | sed 's/^[` ]*//;s/[ ]*$//')
+        _code_block_file=$(tempfile)
+        _code_block_start_line="$_line_number"
+        _is_code="1"
+      fi
+    else
+      # Other lines in the file
+      if [[ "$_is_code" == "1" ]]; then
+        # Write lines inside code blocks out to file
+        echo "$_line" >> "$_code_block_file"
+      fi
+    fi
+  done < "$_input_markdown_file"
+  if [[ "$_is_code" == "1" ]]; then
+    explain "$_input_markdown_file" "$_line_number" "Code block not terminated"
+    FAILURE_COUNT=$((FAILURE_COUNT+1))
+    check_code_block "$_input_markdown_file" "$_code_block_start_line" "$_code_block_file" "$_code_block_language"
+  fi
+}
+
+function check_code_block() {
+  # Verify syntax of extracted code block
+  local _input_file="$1"
+  local _code_block_line="$2"
+  local _code_block_tmp_file="$3"
+  local _code_block_language="$4"
+  if [[ "$_code_block_language" == "" ]]; then
+    # Label unlabelled blocks as 'plain', to avoid confusing output
+    _code_block_language="plain"
+  fi
+  # Pick the best tester for the code
+  local _test=""
+  case "$_code_block_language" in
+  bash)
+      _test="check_code_block_bash"
+      ;;
+  php)
+      _test="check_code_block_php"
+      ;;
+  esac
+
+  # Run actual testing
+  _test_outp_file=$(tempfile)
+  echo -n "- Code block starting line $_code_block_line (language: $_code_block_language) "
+  if [[ $_test == "" ]]; then
+    # Skip out of blocks we can't test
+    yellow SKIP
+  elif ! ${_test}_dependencies > /dev/null 2> /dev/null; then
+    # Skip out of blocks if we don't have a suitable interpreter.
+    yellow SKIP
+    explain "$_input_file" "$_code_block_line" "You need to install a suitable interpreter for '$_code_block_language' code before mdcheckr can attempt to validate this code."
+  elif $_test "$_code_block_tmp_file" > /dev/null 2> "$_test_outp_file"; then
+    green OK
+  else
+    red FAIL
+    explain "$_input_file" "$_code_block_line" "$_code_block_language code block appears to contain a syntax error."
+    FAILURE_COUNT=$((FAILURE_COUNT+1))
+    if [[ "$VERBOSITY" -gt 1 ]]; then
+      # Output to help debug syntax errors in code blocks
+      >&2 cat "$_test_outp_file"
+      >&2 echo "The code block tested was:"
+      >&2 cat "$_code_block_tmp_file"
+    fi
+  fi
+  rm -f "$_test_outp_file"
+  rm -f "$_code_block_tmp_file"
+}
+
+function check_code_block_bash() {
+  bash -n "$1"
+}
+
+function check_code_block_bash_dependencies() {
+  # Safe to assume we have bash
+  true
+}
+
+function check_code_block_php() {
+  local _test_file="$1"
+  # Prepend the file with "<?php" if it's not in there
+  grep '<?php' "$_test_file" || sed -i '1s/^/<?php\n/' "$_test_file" 2> /dev/null
+  # Run the test
+  php --syntax-check "$_test_file"
+}
+
+function check_code_block_php_dependencies() {
+  which php
+}
+
 # Functions to wrap output
 function green() {
   local _message="$1"
@@ -107,10 +212,16 @@ function red() {
   echo -e "\033[31m[ \e[1m$_message\e[21m ]\e[0m"
 }
 
+function yellow() {
+  local _message="$1"
+  echo -e "\033[33m[ \e[1m$_message\e[21m ]\e[0m"
+}
+
 function explain {
   local _file="$1"
-  local _message="$2"
-  >&2 echo -e Warning:$_file:$_message
+  local _line_no="$2"
+  local _message="$3"
+  >&2 echo -e Warning:$_file:$_line_no:$_message
 }
 
 # Explicitly check for each dependency
@@ -122,13 +233,18 @@ done
 
 DIR=`pwd`
 FAILURE_COUNT=0
+VERBOSITY=3
 
 for i in $@; do
   cd "$DIR"
   fn=$(basename "$i")
-  # Jump into same dir as file
-  cd `dirname "$i"`
   echo "Checking $i .."
+  # Check that markdown code blocks have good syntax
+  check_code_blocks "$i"
+  # Jump into same dir as file (for checking relative paths to work)
+  cd `dirname "$i"`
+  # Check that file will render to contain valid links, images
+  # TODO TODO TODO TODO
   html_fn=$(render_markdown_to_html "$fn")
   check_links "$i" < <(extract_links_from_html "$html_fn")
   check_image_links "$i"  < <(extract_image_links_from_html "$html_fn")
