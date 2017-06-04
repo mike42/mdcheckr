@@ -1,6 +1,6 @@
 #!/bin/bash
 # mdcheckr: practical CI testing for markdown files
-# Copyright (c) 2017 Michael Billington < michael.billingotn@gmail.com >
+# Copyright (c) 2017 Michael Billington < michael.billington@gmail.com >
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -19,28 +19,98 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-set -e
 
-function extract_links() {
-  # Extract URLs from Markdown file:
-  # - Render via Pandoc
-  # - Extract URI via href="" attribute
+# Set options
+set -o errexit
+set -o pipefail
+set -o nounset
+
+function render_markdown_to_html() {
+  # Render markdown to temp file via Pandoc for further processing
+  local _outp_file=$(tempfile)
+  pandoc -f markdown_github "$1" > "$_outp_file"
+  echo "$_outp_file"
+}
+
+function extract_links_from_html() {
+  # Extract URLs from HTML file:
+  # - Extract URI via <a href=""></a> attribute
   # - Format as one URI per line
-  pandoc -f markdown_github "$1" | \
-    (xmllint --nowarning --html --xpath '*//a/@href' - 2> /dev/null || true) | \
+  local _inp_file="$1"
+  (xmllint --nowarning --html --xpath '*//a/@href' "$_inp_file" 2> /dev/null || true) | \
     sed 's/ href="\([^"]*\)"/\1\n/g'
 }
 
+function extract_image_links_from_html() {
+  # Extract URLs from HTML file:
+  # - Extract URI via <img src=""></a> attribute
+  # - Format as one URI per line
+  local _inp_file="$1"
+  (xmllint --nowarning --html --xpath '*//img/@src' "$_inp_file" 2> /dev/null || true) | \
+    sed 's/ src="\([^"]*\)"/\1\n/g'
+}
+
+function check_links() {
+  # Take a list of relative and absolute paths as input and verify that they are
+  # all accessible.
+  local _inp_file="$1"
+  while read -r _line; do
+    # Notify of check
+    echo -n "- Link $_line ";
+    if ! check_link "$_line"; then
+      red "FAIL"
+      explain "$_inp_file" "Broken link '$_line'"
+      FAILURE_COUNT=$((FAILURE_COUNT+1))
+    else
+      green "OK"
+    fi
+  done
+}
+
+function check_image_links() {
+  # Take a list of relative and absolute paths on STDIN and verify that they are
+  # all accessible.
+  local _inp_file="$1"
+  while read -r _line; do
+    # Notify of check
+    echo -n "- Image $_line ";
+    if ! check_link "$_line"; then
+      red "FAIL"
+      explain "$_inp_file" "Broken image '$_line'"
+      FAILURE_COUNT=$((FAILURE_COUNT+1))
+    else
+      green "OK"
+    fi
+  done
+}
+
+function check_link() {
+  # Argument: A URI to check
+  local _inp_filename="$1"
+  if [ -f "$_inp_filename" ]; then
+    return 0
+  fi
+  if curl --silent --head --location --fail "$_inp_filename" > /dev/null; then
+    return 0
+  fi
+  return 1
+}
+
+# Functions to wrap output
 function green() {
-  echo -e "\033[32m[ \e[1m$1\e[21m ]\e[0m"
+  local _message="$1"
+  echo -e "\033[32m[ \e[1m$_message\e[21m ]\e[0m"
 }
 
 function red() {
-  echo -e "\033[31m[ \e[1m$1\e[21m ]\e[0m"
+  local _message="$1"
+  echo -e "\033[31m[ \e[1m$_message\e[21m ]\e[0m"
 }
 
 function explain {
-  >&2 echo -e Warning:$1:$2
+  local _file="$1"
+  local _message="$2"
+  >&2 echo -e Warning:$_file:$_message
 }
 
 # Explicitly check for each dependency
@@ -51,7 +121,7 @@ for i in which pandoc xmllint curl; do which $i > /dev/null 2> /dev/null || (
 done
 
 DIR=`pwd`
-failures=0
+FAILURE_COUNT=0
 
 for i in $@; do
   cd "$DIR"
@@ -59,35 +129,19 @@ for i in $@; do
   # Jump into same dir as file
   cd `dirname "$i"`
   echo "Checking $i .."
-  while read -r line; do
-    # Notify of check
-    echo -n "- $line ";
-    fail=0
-    # Do check
-    if [ ! -f "$line" ]; then
-      if ! curl --silent --head --location --fail "$line" > /dev/null; then
-        fail=1
-        REASON="Broken link to '$line'"
-      fi
-    fi
-    # Result
-    if [ "$fail" == 1 ]; then
-      red "FAIL"
-      explain "$i" "$REASON"
-      failures=$((failures+1))
-    else
-      green "OK"
-    fi
-  done < <(extract_links "$fn")
+  html_fn=$(render_markdown_to_html "$fn")
+  check_links "$i" < <(extract_links_from_html "$html_fn")
+  check_image_links "$i"  < <(extract_image_links_from_html "$html_fn")
+  rm -f "$html_fn"
 done
 
 # Return to initial directory
 cd $DIR
 
-# Log number of failures
-if [ "$failures" -gt 0 ]; then
-  echo "Done, with $failures warning(s)."
+# Log number of FAILURE_COUNT
+if [ "$FAILURE_COUNT" -gt 0 ]; then
+  echo "Done, with $FAILURE_COUNT warning(s)."
 fi
 
-# Use number of failures as exit code
-exit $failures
+# Use number of FAILURE_COUNT as exit code
+exit $FAILURE_COUNT

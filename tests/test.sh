@@ -24,7 +24,7 @@ mdcheckr="../mdcheckr"
 failures=0
 
 # Confirm that good examples pass
-find . -name '*_good.md' -print0 | tr '\0' '\n' | while read -r line; do
+find . -name '*_good.md' -print0 | tr '\0' '\n' | sort | while read -r line; do
   echo -n "Expecting '$line' to pass without errors "
   if ! $mdcheckr "$line" > /dev/null 2> /dev/null; then
     red "FAIL"
@@ -46,7 +46,7 @@ while read -r line; do
     green "OK"
   fi
   rm -f $line.err.actual
-done < <(find . -name '*_bad.md' -print0 | tr '\0' '\n')
+done < <(find . -name '*_bad.md' -print0 | tr '\0' '\n' | sort)
 
 # Log number of failures
 if [ "$failures" -gt 0 ]; then
