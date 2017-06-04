@@ -9,6 +9,6 @@ addons:
       - libxml2-utils
 
 script:
-  - bash -n mdcheckr
-  - (cd tests && ./test.sh)
+  - make test
   - ./mdcheckr README.md
+  - make unsigned-package

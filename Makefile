@@ -5,6 +5,7 @@ VERSION=1.0
 default: test
 
 test:
+	bash -n mdcheckr
 	(cd tests && ./test.sh)
 
 source-tarball: mdcheckr_$(VERSION).orig.tar.gz
