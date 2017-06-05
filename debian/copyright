@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Source: https://github.com/mike42/mdcheckr
+
+Files: *
+Copyright: 2017 Michael Billington
+License: MIT
+

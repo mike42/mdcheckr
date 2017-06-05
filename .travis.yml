@@ -7,8 +7,12 @@ addons:
     packages:
       - pandoc
       - libxml2-utils
+      - devscripts
+      - build-essential
+      - lintian
+      - debhelper
 
 script:
-  - bash -n mdcheckr
-  - (cd tests && ./test.sh)
+  - make test
   - ./mdcheckr README.md
+  - make unsigned-package
