@@ -16,6 +16,7 @@ mdcheckr_$(VERSION).orig.tar.gz:
 		LICENSE.md \
 		README.md \
 		mdcheckr \
+		mdcheckr.1 \
 		tests
 
 unsigned-package: mdcheckr_$(VERSION)-1_all.deb
