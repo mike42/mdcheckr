@@ -29,6 +29,12 @@ sudo cp mdcheckr /usr/local/bin
 
 ## Usage
 
+```
+mdcheckr [ -h | --help ] [ -v | --version ] FILE ..
+```
+
+## Examples
+
 Check a single markdown file:
 
 ```
@@ -46,6 +52,3 @@ Check all the markdown files in your Git repository:
 ```bash
 git ls-files | grep '\.md$' | tr '\n' '\0' | xargs -0 mdcheckr
 ```
-
-
-

@@ -227,7 +227,7 @@ function explain() {
 # Parse command-line optins...
 function show_usage() {
   cat << EOF
-usage: mdcheckr [ -h | --help | -v | --version ] FILE ..
+usage: mdcheckr [ -h | --help ] [ -v | --version ] FILE ..
 EOF
 }
 
