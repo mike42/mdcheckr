@@ -1,4 +1,10 @@
-mdcheckr (1.0-1) UNRELEASED; urgency=low
+mdcheckr (1.1-1) sid; urgency=low
+
+  * Improvements to command-line interface
+
+ -- Michael Billington <michael.billington@gmail.com>  Mon, 12 Jun 2017 19:19:00 +1000
+
+mdcheckr (1.0-1) sid; urgency=low
 
   * Initial release.
 
