@@ -1,3 +1,9 @@
+mdcheckr (1.1-1ubuntu2~trustyppa1) trusty; urgency=low
+
+  * Packaging changes for offline build
+
+ -- Michael Billington <michael.billington@gmail.com>  Mon, 12 Jun 2017 20:51:00 +1000
+
 mdcheckr (1.1-1ubuntu1~trustyppa1) trusty; urgency=low
 
   * Improvements to command-line interface
