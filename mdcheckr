@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Set options
+# Set bash options
 set -o errexit
 set -o pipefail
 set -o nounset
@@ -217,24 +217,96 @@ function yellow() {
   echo -e "\033[33m[ \e[1m$_message\e[21m ]\e[0m"
 }
 
-function explain {
+function explain() {
   local _file="$1"
   local _line_no="$2"
   local _message="$3"
   >&2 echo -e Warning:$_file:$_line_no:$_message
 }
 
+# Parse command-line optins...
+function show_usage() {
+  cat << EOF
+usage: mdcheckr [ -h | --help ] [ -v | --version ] FILE ..
+EOF
+}
+
+
+function show_help() {
+  show_usage
+  cat << EOF
+
+A testing tool to detect quality problems with your Markdown documentation.
+
+positional arguments:
+  FILE ..              files to check
+
+optional arguments:
+  -h, --help           show this help message and exit
+  -v, --version        show version number and exit
+EOF
+}
+
+function show_version() {
+  echo "mdcheckr ${VERSION}"
+}
+
+# Set defaults
+VERSION="1.0"
+OPTIND=1
+VERBOSITY=3
+while getopts "hv-:" opt; do
+  case $opt in
+    -)
+      case "${OPTARG}" in
+        help)
+          show_help
+          exit 0
+          ;;
+        version)
+          show_version
+          exit 0
+          ;;
+        *)
+          echo "$0: Illegal option -- ${OPTARG}" >&2
+          show_usage >&2
+          exit 1
+          ;;
+      esac
+      ;;
+    h)
+      show_help
+      exit 0
+      ;;
+    v)
+      show_version
+      exit 0
+      ;;
+    *)
+      show_usage >&2
+      exit 1
+    ;;
+  esac
+done
+shift "$((OPTIND-1))"
+
+# Require at least one filename to be specified
+if [ "$#" -lt 1 ]; then
+    echo "$0: Missing file operand" >&2
+    show_usage >&2
+fi
+
+
 # Explicitly check for each dependency
 for i in which pandoc xmllint curl; do which $i > /dev/null 2> /dev/null || (
-    echo "The tool '$i' is required by mdcheckr, but is not in your \$PATH."
+    >&2 echo "The tool '$i' is required by mdcheckr, but is not in your \$PATH."
     exit 127
   );
 done
 
-DIR=`pwd`
-FAILURE_COUNT=0
 VERBOSITY=3
-
+FAILURE_COUNT=0
+DIR=`pwd`
 for i in $@; do
   cd -- "$DIR"
   fn=$(basename -- "$i")
