@@ -15,4 +15,3 @@ addons:
 script:
   - make test
   - ./mdcheckr README.md
-  - make unsigned-package
