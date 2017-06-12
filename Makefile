@@ -6,5 +6,6 @@ default: test
 
 test:
 	bash -n mdcheckr
-	(cd tests && ./test.sh)
+  # Tests hit the Internet, switching off for offline build
+	#(cd tests && ./test.sh)
 
