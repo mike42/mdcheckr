@@ -1,3 +1,9 @@
+mdcheckr (1.1-1ubuntu2) trusty; urgency=low
+
+  * Remove dependency on 'which' debian package.
+
+ -- Michael Billington <michael.billington@gmail.com>  Mon, 12 Jun 2017 19:19:00 +1000
+
 mdcheckr (1.1-1ubuntu1) trusty; urgency=low
 
   * Improvements to command-line interface
