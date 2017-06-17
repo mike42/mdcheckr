@@ -7,6 +7,6 @@ Build-Depends: debhelper (>= 9)
 
 Package: mdcheckr
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, pandoc, curl, libxml2-utils, which
+Depends: ${shlibs:Depends}, ${misc:Depends}, pandoc, curl, libxml2-utils
 Description:
  check markdown files for broken links and other errors
