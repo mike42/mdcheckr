@@ -327,7 +327,7 @@ cd $DIR
 
 # Log number of FAILURE_COUNT
 if [ "$FAILURE_COUNT" -gt 0 ]; then
-  echo "Done, with $FAILURE_COUNT warning(s)."
+  echo "Done, with $FAILURE_COUNT problems(s) found."
 fi
 
 # Use number of FAILURE_COUNT as exit code
