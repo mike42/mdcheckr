@@ -38,7 +38,7 @@ function extract_links_from_html() {
   # - Format as one URI per line
   local _inp_file="$1"
   (xmllint --nowarning --html --xpath '*//a/@href' "$_inp_file" 2> /dev/null || true) | \
-    sed 's/ href="\([^"]*\)"/\1\n/g'
+    sed 's/ href="\([^"]*\)"/\1\n/g' | grep -v "^#"
 }
 
 function extract_image_links_from_html() {
@@ -59,7 +59,7 @@ function check_links() {
     echo -n "- Link $_line ";
     if ! check_link "$_line"; then
       red "FAIL"
-      explain "$_inp_file" "Broken link '$_line'"
+      explain "$_inp_file" 1 "Broken link '$_line'"
       FAILURE_COUNT=$((FAILURE_COUNT+1))
     else
       green "OK"
@@ -76,7 +76,7 @@ function check_image_links() {
     echo -n "- Image $_line ";
     if ! check_link "$_line"; then
       red "FAIL"
-      explain "$_inp_file" "Broken image '$_line'"
+      explain "$_inp_file" 1 "Broken image '$_line'"
       FAILURE_COUNT=$((FAILURE_COUNT+1))
     else
       green "OK"
@@ -327,7 +327,7 @@ cd $DIR
 
 # Log number of FAILURE_COUNT
 if [ "$FAILURE_COUNT" -gt 0 ]; then
-  echo "Done, with $FAILURE_COUNT warning(s)."
+  echo "Done, with $FAILURE_COUNT problems(s) found."
 fi
 
 # Use number of FAILURE_COUNT as exit code
