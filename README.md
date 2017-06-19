@@ -21,6 +21,43 @@ Requirements:
 
 ## Installation
 
+### Operating systems
+
+#### Ubuntu
+
+These may be installed from the [mike42/mdcheckr](https://launchpad.net/~mike42/+archive/ubuntu/mdcheckr) PPA (Notes for Travis CI users: [Installing Dependencies](https://docs.travis-ci.com/user/installing-dependencies/))
+
+```bash
+sudo add-apt-repository -y ppa:mike42/mdcheckr
+sudo apt-get update
+sudo apt-get -y install mdcheckr
+```
+
+#### Debian
+
+Fetch the Debian package from [releases](https://github.com/mike42/mdcheckr/releases).
+
+```bash
+sudo dpkg -i mdcheckr_x.y-z_all.deb
+sudo apt-get -f install
+```
+
+#### Redhat-based distrbutions
+
+Fetch the RPM package from [releases](https://github.com/mike42/mdcheckr/releases).
+
+```bash
+yum -y install epel-release
+yum -y install which pandoc libxml2 mdcheckr-x.y-z.noarch.rpm
+ln -s /usr/bin/mktemp /usr/bin/tempfile
+```
+
+This package should be considered a preview only, and is currently being produced with [Alien](https://wiki.debian.org/Alien).
+
+### Install from source
+
+If the dependencies are available on your system, just copy the shell script itself to `/usr/local/bin`:
+
 ```bash
 curl https://raw.githubusercontent.com/mike42/mdcheckr/master/mdcheckr -o mdcheckr
 chmod +x mdcheckr
