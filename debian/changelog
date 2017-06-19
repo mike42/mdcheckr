@@ -1,3 +1,9 @@
+mdcheckr (1.2-1) sid; urgency=low
+
+  * Exclude intra-page links from checks.
+
+ -- Michael Billington <michael.billington@gmail.com>  Mon, 19 Jun 2017 20:58:00 +1000
+
 mdcheckr (1.1-2) sid; urgency=low
 
   * Remove dependency on 'which' debian package.
