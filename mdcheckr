@@ -90,7 +90,7 @@ function check_link() {
   if [ -f "$_inp_filename" ]; then
     return 0
   fi
-  if curl --silent --head --location --fail -- "$_inp_filename" > /dev/null; then
+  if curl --silent --head --location --fail -H "Accept: text/html" -- "$_inp_filename" > /dev/null; then
     return 0
   fi
   return 1
