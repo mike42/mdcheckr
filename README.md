@@ -54,6 +54,18 @@ ln -s /usr/bin/mktemp /usr/bin/tempfile
 
 This package should be considered a preview only, and is currently being produced with [Alien](https://wiki.debian.org/Alien).
 
+#### Apple Mac OS distributions
+
+You will still need to follow "install from source" instructions. However you need to ensure the dependency of Pandadoc is installed on your mac. Pleasse ensure you have [homebrew](https://brew.sh/) installed first.
+
+```bash
+brew update
+brew install pandoc
+curl https://raw.githubusercontent.com/mike42/mdcheckr/master/mdcheckr -o mdcheckr
+chmod +x mdcheckr
+sudo mv mdcheckr /usr/local/bin
+```
+
 ### Install from source
 
 If the dependencies are available on your system, just copy the shell script itself to `/usr/local/bin`:
