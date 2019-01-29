@@ -27,7 +27,7 @@ set -o nounset
 
 function render_markdown_to_html() {
   # Render markdown to temp file via Pandoc for further processing
-  local _outp_file=$(tempfile)
+  local _outp_file=$(mktemp $TMPDIR/$RANDOM.txt)
   pandoc -f markdown_github -- "$1" > "$_outp_file"
   echo "$_outp_file"
 }
@@ -113,7 +113,7 @@ function check_code_blocks() {
         check_code_block "$_input_markdown_file" "$_code_block_start_line" "$_code_block_file" "$_code_block_language"
       else
         _code_block_language=$(echo "$_line" | sed 's/^[` ]*//;s/[ ]*$//')
-        _code_block_file=$(tempfile)
+        _code_block_file=$(mktemp $TMPDIR/$RANDOM.txt)
         _code_block_start_line="$_line_number"
         _is_code="1"
       fi
@@ -154,7 +154,7 @@ function check_code_block() {
   esac
 
   # Run actual testing
-  _test_outp_file=$(tempfile)
+  _test_outp_file=$(mktemp $TMPDIR/$RANDOM.txt)
   echo -n "- Code block starting line $_code_block_line (language: $_code_block_language) "
   if [[ $_test == "" ]]; then
     # Skip out of blocks we can't test
