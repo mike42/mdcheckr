@@ -36,7 +36,7 @@ function temporary_file() {
 function render_markdown_to_html() {
   # Render markdown to temp file via Pandoc for further processing
   local _outp_file=$(mktemp $(temporary_file))
-  pandoc -f markdown_github -- "$1" > "$_outp_file"
+  pandoc -f gfm -- "$1" > "$_outp_file"
   echo "$_outp_file"
 }
 
